@@ -1,4 +1,8 @@
-/* hello */
 .heading {
+  font-family: Oswald;
   font-size: 50px;
+}
+.title {
+  font-size: 75px;
+  font-family: 'Times New Roman'
 }
