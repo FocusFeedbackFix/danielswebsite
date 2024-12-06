@@ -4,5 +4,6 @@
 }
 .title {
   font-size: 75px;
-  font-family: 'Times New Roman'
+  font-family: Times New Roman;
+  text-align: center;
 }
