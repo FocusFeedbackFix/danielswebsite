@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Daniel's Website</title>
+    <!-- Removed incorrect JS link -->
+  </head>
+  <body style="background-color:#001f4d;"></body>
+    <div class="container">
+      <h1 class="title" style="text-align:center; font-family:'Times New Roman', Times, serif;">Water Polo Cap Tracker</h1>
+      <p style="text-align:center; font-family:'Times New Roman', Times, serif;">This is a water polo cap button system. I will make a better one soon!</p>
+      <p style="text-align:center; font-family:'Times New Roman', Times, serif;">
+        <a href="/">Back to Home Page</a>
+      </p>
+
+      <!-- Input Section -->
+      <form class="input-section" id="playerForm" autocomplete="off" onsubmit="return false;">
+        <label for="playerName" style="display:none;">Player Name</label>
+        <input type="text" id="playerName" placeholder="Player Name" autocomplete="off" />
+        <label for="capNumber" style="display:none;">Cap Number</label>
+        <input type="number" id="capNumber" placeholder="Cap Number (1-16)" min="1" max="16" />
+        <div class="radio-group" aria-label="Team Color">
+          <label><input type="radio" name="teamColor" value="white" checked /> White</label>
+          <label><input type="radio" name="teamColor" value="black" /> Black</label>
+        </div>
+        <button id="addPlayerBtn" type="submit" aria-label="Add Player">Add Player</button>
+        <div class="error-message" id="errorMessage"></div>
+      </form>
+
+      <!-- Cap Buttons -->
+      <div class="grid-wrapper">
+        <div class="button-grid" id="buttonGridTop"></div>
+        <div class="button-grid" id="buttonGridBottom"></div>
+      </div>
+
+      <!-- Highlight Buttons -->
+      <div class="control-buttons">
+        <button class="color-btn white-btn" type="button" onclick="highlightByColor('white')" aria-label="Highlight White">White</button>
+        <button class="color-btn black-btn" type="button" onclick="highlightByColor('black')" aria-label="Highlight Black">Black</button>
+      </div>
+
+      <!-- Search Bar -->
+      <div class="search-box">
+        <input type="text" id="searchInput" placeholder="Search players by name..." oninput="filterPlayers()" aria-label="Search players by name" />
+      </div>
+
+      <!-- Player List -->
+      <div class="player-list" id="playerList">
+        <h3>Player Roster</h3>
+        <div class="roster-halves">
+          <div class="roster-half" id="whiteRoster">
+            <h4>White Team</h4>
+            <div id="playerListWhite"></div>
+          </div>
+          <div class="roster-half" id="blackRoster">
+            <h4>Black Team</h4>
+            <div id="playerListBlack"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <style>
+      body {
+        font-family: 'Segoe UI', sans-serif;
+        background: #001f4d;
+        padding: 40px;
+        margin: 0;
+      }
+      h1 {
+        text-align: center;
+        margin-bottom: 30px;
+        color: #fff;
+      }
+      .container {
+        max-width: 1000px;
+        margin: auto;
+      }
+      .input-section {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 15px;
+        margin-bottom: 30px;
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      }
+      .input-section input[type="text"],
+      .input-section input[type="number"] {
+        padding: 10px;
+        font-size: 1rem;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        width: 200px;
+      }
+      .radio-group {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+      }
+      .radio-group label {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        font-weight: 500;
+      }
+      .input-section button {
+        background-color: #007bff;
+        color: white;
+        padding: 10px 16px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: bold;
+        transition: background-color 0.3s ease;
+      }
+      .input-section button:hover {
+        background-color: #0056b3;
+      }
+      .error-message {
+        color: red;
+        font-size: 0.9rem;
+        margin-top: 10px;
+        width: 100%;
+      }
+      .grid-wrapper {
+        margin-bottom: 20px;
+      }
+      .button-grid {
+        display: grid;
+        grid-template-columns: repeat(8, 1fr);
+        gap: 10px;
+        justify-content: center;
+        margin-bottom: 10px;
+      }
+      .number-button {
+        height: 60px;
+        background-color: #e0e0e0;
+        border: none;
+        border-radius: 8px;
+        font-size: 1.2rem;
+        font-weight: bold;
+        color: #333;
+        cursor: pointer;
+        transition: background-color 0.3s;
+        position: relative;
+        outline: none;
+      }
+      .number-button.active {
+        background-color: #28a745;
+        color: white;
+      }
+      .number-button[data-tooltip]:hover::after {
+        content: attr(data-tooltip);
+        position: absolute;
+        top: -28px;
+        left: 50%;
+        transform: translateX(-50%);
+        padding: 5px 10px;
+        background: #333;
+        color: white;
+        font-size: 0.75rem;
+        border-radius: 4px;
+        white-space: nowrap;
+        z-index: 100;
+      }
+      .control-buttons {
+        display: flex;
+        gap: 20px;
+        justify-content: center;
+      }
+      .color-btn {
+        padding: 10px 20px;
+        font-size: 1rem;
+        font-weight: bold;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        min-width: 100px;
+      }
+      .white-btn {
+        background-color: white;
+        color: black;
+        border: 2px solid #ccc;
+      }
+      .black-btn {
+        background-color: black;
+        color: white;
+        border: 2px solid #444;
+      }
+      .player-list {
+        margin-top: 30px;
+        background: #fff;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 1px 6px rgba(0,0,0,0.1);
+      }
+      .player-list h3 {
+        margin-top: 0;
+        font-size: 1.2rem;
+        border-bottom: 1px solid #ddd;
+        padding-bottom: 5px;
+        color: #001f4d;
+      }
+      .roster-halves {
+        display: flex;
+        gap: 30px;
+        justify-content: space-between;
+        flex-wrap: wrap;
+      }
+      .roster-half {
+        flex: 1 1 0;
+        min-width: 220px;
+        background: #f8f8f8;
+        border-radius: 8px;
+        padding: 10px 15px 15px 15px;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+      }
+      .roster-half h4 {
+        margin: 0 0 10px 0;
+        font-size: 1.1rem;
+        color: #001f4d;
+        text-align: center;
+      }
+      .player-item {
+        padding: 8px 0;
+        border-bottom: 1px solid #eee;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .player-item:last-child {
+        border-bottom: none;
+      }
+      .remove-btn {
+        background: crimson;
+        color: white;
+        border: none;
+        padding: 4px 10px;
+        border-radius: 5px;
+        font-size: 0.85rem;
+        cursor: pointer;
+      }
+      .remove-btn:hover {
+        background: darkred;
+      }
+      .search-box {
+        margin-top: 20px;
+        text-align: center;
+      }
+      .search-box input {
+        padding: 8px 12px;
+        font-size: 1rem;
+        border-radius: 6px;
+        border: 1px solid #aaa;
+        width: 60%;
+        max-width: 400px;
+      }
+      @media (max-width: 600px) {
+        .button-grid {
+          grid-template-columns: repeat(4, 1fr);
+        }
+        .input-section {
+          flex-direction: column;
+          align-items: stretch;
+        }
+        .roster-halves {
+          flex-direction: column;
+          gap: 10px;
+        }
+      }
+    </style>
+    <script>
+      let players = {}; // capNumber: { name, color }
+      const totalButtons = 16;
+      const localKey = 'waterPoloPlayers';
+
+      function createCapButtons() {
+        const topGrid = document.getElementById('buttonGridTop');
+        const bottomGrid = document.getElementById('buttonGridBottom');
+        for (let i = 1; i <= totalButtons; i++) {
+          const btn = document.createElement('button');
+          btn.classList.add('number-button');
+          btn.id = `cap-${i}`;
+          btn.textContent = i;
+          btn.type = "button";
+          btn.setAttribute('tabindex', '0');
+          btn.setAttribute('aria-label', `Cap ${i}`);
+          btn.addEventListener('click', () => {
+            if (players[i]) {
+              document.getElementById('searchInput').value = players[i].name;
+              filterPlayers();
+            }
+          });
+          btn.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') btn.click();
+          });
+          if (i <= 8) topGrid.appendChild(btn);
+          else bottomGrid.appendChild(btn);
+        }
+      }
+
+      function saveToLocal() {
+        localStorage.setItem(localKey, JSON.stringify(players));
+      }
+
+      function loadFromLocal() {
+        const saved = localStorage.getItem(localKey);
+        if (saved) {
+          players = JSON.parse(saved);
+          for (const cap in players) {
+            const { name, color } = players[cap];
+            activateCap(parseInt(cap), name, color);
+          }
+          updatePlayerList();
+        }
+      }
+
+      function activateCap(cap, name, color) {
+        const btn = document.getElementById(`cap-${cap}`);
+        if (btn) {
+          btn.classList.add('active');
+          btn.setAttribute('data-tooltip', `${name} (${color})`);
+        }
+      }
+
+      function deactivateCap(cap) {
+        const btn = document.getElementById(`cap-${cap}`);
+        if (btn) {
+          btn.classList.remove('active');
+          btn.removeAttribute('data-tooltip');
+        }
+      }
+
+      function highlightByColor(color) {
+        for (let i = 1; i <= totalButtons; i++) {
+          const btn = document.getElementById(`cap-${i}`);
+          if (players[i] && players[i].color === color) {
+            btn.classList.add('active');
+          } else {
+            btn.classList.remove('active');
+          }
+        }
+      }
+
+      document.getElementById('playerForm').addEventListener('submit', () => {
+        const name = document.getElementById('playerName').value.trim();
+        const cap = parseInt(document.getElementById('capNumber').value);
+        const color = document.querySelector('input[name="teamColor"]:checked').value;
+        const error = document.getElementById('errorMessage');
+        error.textContent = "";
+
+        if (!name || isNaN(cap) || cap < 1 || cap > 16) {
+          error.textContent = "Please enter a valid name and cap number between 1–16.";
+          return;
+        }
+        players[cap] = { name, color };
+        activateCap(cap, name, color);
+        updatePlayerList();
+        saveToLocal();
+        document.getElementById('playerName').value = "";
+        document.getElementById('capNumber').value = "";
+      });
+
+      function updatePlayerList() {
+        const whiteList = document.getElementById('playerListWhite');
+        const blackList = document.getElementById('playerListBlack');
+        whiteList.innerHTML = "";
+        blackList.innerHTML = "";
+        const sorted = Object.entries(players).sort((a, b) => a[0] - b[0]);
+        for (const [cap, info] of sorted) {
+          const item = document.createElement('div');
+          item.classList.add('player-item');
+          item.innerHTML = `
+            <span>#${cap} - ${info.name}</span>
+            <button class="remove-btn" type="button" aria-label="Remove player ${info.name}" onclick="removePlayer(${cap})">Remove</button>
+          `;
+          if (info.color === "white") {
+            whiteList.appendChild(item);
+          } else {
+            blackList.appendChild(item);
+          }
+        }
+      }
+
+      window.removePlayer = function(cap) {
+        delete players[cap];
+        deactivateCap(cap);
+        updatePlayerList();
+        saveToLocal();
+      };
+
+      window.highlightByColor = highlightByColor;
+
+      window.filterPlayers = function() {
+        const query = document.getElementById('searchInput').value.toLowerCase();
+        // Filter both white and black lists
+        const listItems = document.querySelectorAll('#playerListWhite .player-item, #playerListBlack .player-item');
+        listItems.forEach(item => {
+          const text = item.innerText.toLowerCase();
+          item.style.display = text.includes(query) ? '' : 'none';
+        });
+      };
+
+      // Init
+      createCapButtons();
+      loadFromLocal();
+    </script>
+  </body>
+</html>
